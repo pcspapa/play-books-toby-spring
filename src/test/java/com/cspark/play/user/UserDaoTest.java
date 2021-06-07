@@ -8,14 +8,26 @@ import org.junit.jupiter.api.Test;
 class UserDaoTest {
 
   @Test
-  void addAndGetUser() throws SQLException, ClassNotFoundException {  // Once?
-    UserDao dao = new UserDao();
+  void addAndGetNUser() throws SQLException, ClassNotFoundException {  // Once?
+    UserDao dao = new NUserDao();
 
     dao.add(new User("mj", "Mary Jane Watson", "pw"));
 
     User mjUser = dao.get("mj");
     assertThat(mjUser.getId()).isEqualTo("mj");
     assertThat(mjUser.getName()).isEqualTo("Mary Jane Watson");
+    assertThat(mjUser.getPassword()).isEqualTo("pw");
+  }
+
+  @Test
+  void addAndGetDUser() throws SQLException, ClassNotFoundException {  // Once?
+    UserDao dao = new DUserDao();
+
+    dao.add(new User("bp", "Brad Pitt", "pw"));
+
+    User mjUser = dao.get("bp");
+    assertThat(mjUser.getId()).isEqualTo("bp");
+    assertThat(mjUser.getName()).isEqualTo("Brad Pitt");
     assertThat(mjUser.getPassword()).isEqualTo("pw");
   }
 }
