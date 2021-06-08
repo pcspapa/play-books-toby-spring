@@ -7,9 +7,11 @@ import org.junit.jupiter.api.Test;
 
 class UserDaoTest {
 
+  private final DaoFactory daoFactory = new DaoFactory();
+
   @Test
   void addAndGetNUser() throws SQLException, ClassNotFoundException {  // Once?
-    UserDao dao = new UserDao(new NConnectionMaker());
+    UserDao dao = daoFactory.userNDao();
 
     dao.add(new User("mj", "Mary Jane Watson", "pw"));
 
@@ -21,7 +23,7 @@ class UserDaoTest {
 
   @Test
   void addAndGetDUser() throws SQLException, ClassNotFoundException {  // Once?
-    UserDao dao = new UserDao(new DConnectionMaker());
+    UserDao dao = daoFactory.userDDao();
 
     dao.add(new User("bp", "Brad Pitt", "pw"));
 
@@ -30,4 +32,5 @@ class UserDaoTest {
     assertThat(mjUser.getName()).isEqualTo("Brad Pitt");
     assertThat(mjUser.getPassword()).isEqualTo("pw");
   }
+
 }
