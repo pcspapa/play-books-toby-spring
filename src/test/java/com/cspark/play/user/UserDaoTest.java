@@ -1,38 +1,62 @@
 package com.cspark.play.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.sql.SQLException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 class UserDaoTest {
 
-  @Test
-  void addAndGetNUser() throws SQLException, ClassNotFoundException {  // Once?
+  private UserDao dao;
+
+  @BeforeEach
+  void setUp() {
     ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
-    UserDao dao = context.getBean("userNDao", UserDao.class);
-
-    dao.add(new User("mj", "Mary Jane Watson", "pw"));
-
-    User mjUser = dao.get("mj");
-    assertThat(mjUser.getId()).isEqualTo("mj");
-    assertThat(mjUser.getName()).isEqualTo("Mary Jane Watson");
-    assertThat(mjUser.getPassword()).isEqualTo("pw");
+    dao = context.getBean("userDao", UserDao.class);
   }
 
   @Test
-  void addAndGetDUser() throws SQLException, ClassNotFoundException {  // Once?
-    ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
-    UserDao dao = context.getBean("userDDao", UserDao.class);
+  void addAndGetUser() throws SQLException {
+    User user = new User("mj", "Mary Jane Watson", "pw");
 
-    dao.add(new User("bp", "Brad Pitt", "pw"));
+    dao.deleteAll();
+    assertThat(dao.getCount()).isEqualTo(0);
 
-    User mjUser = dao.get("bp");
-    assertThat(mjUser.getId()).isEqualTo("bp");
-    assertThat(mjUser.getName()).isEqualTo("Brad Pitt");
-    assertThat(mjUser.getPassword()).isEqualTo("pw");
+    dao.add(user);
+
+    User mjUser = dao.get(user.getId());
+    assertThat(mjUser.getId()).isEqualTo(user.getId());
+    assertThat(mjUser.getName()).isEqualTo(user.getName());
+    assertThat(mjUser.getPassword()).isEqualTo(user.getPassword());
   }
 
+  @Test
+  void getUserFailure() {
+    assertThatThrownBy(() -> dao.get("unknown"))
+        .isInstanceOf(EmptyResultDataAccessException.class);
+  }
+
+  @Test
+  void count() throws SQLException {
+    User user1 = new User("id1", "name1", "pw1");
+    User user2 = new User("id2", "name2", "pw2");
+    User user3 = new User("id3", "name3", "pw3");
+
+    dao.deleteAll();
+    assertThat(dao.getCount()).isEqualTo(0);
+
+    dao.add(user1);
+    assertThat(dao.getCount()).isEqualTo(1);
+
+    dao.add(user2);
+    assertThat(dao.getCount()).isEqualTo(2);
+
+    dao.add(user3);
+    assertThat(dao.getCount()).isEqualTo(3);
+  }
 }
