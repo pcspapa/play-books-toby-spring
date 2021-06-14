@@ -6,17 +6,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.sql.SQLException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+@SpringBootTest
 class UserDaoTest {
 
+  @Autowired
+  private ApplicationContext context;
   private UserDao dao;
 
   @BeforeEach
   void setUp() {
-    ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
     dao = context.getBean("userDao", UserDao.class);
   }
 
