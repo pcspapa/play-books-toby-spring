@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
-import javax.sql.DataSource;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 public class UserDao {
@@ -58,15 +57,26 @@ public class UserDao {
     } catch (SQLException e) {
       throw e;
     } finally {
-      if (rs != null) try { rs.close(); } catch (SQLException e) { }
-      if (ps != null) try { ps.close(); } catch (SQLException e) { }
-      if (conn != null) try { conn.close(); } catch (SQLException e) { }
+      if (rs != null)
+        try {
+          rs.close();
+        } catch (SQLException e) {
+        }
+      if (ps != null)
+        try {
+          ps.close();
+        } catch (SQLException e) {
+        }
+      if (conn != null)
+        try {
+          conn.close();
+        } catch (SQLException e) {
+        }
     }
   }
 
   public void deleteAll() throws SQLException {
-    StatementStrategy stmt = new DeleteAllStatement();
-    jdbcContext.jdbcContextWithStatementStrategy(stmt);
+    jdbcContext.executeSql("delete from users");
   }
 
   public int getCount() throws SQLException {
@@ -86,9 +96,21 @@ public class UserDao {
     } catch (SQLException e) {
       throw e;
     } finally {
-      if (rs != null) try { rs.close(); } catch (SQLException e) { }
-      if (ps != null) try { ps.close(); } catch (SQLException e) { }
-      if (conn != null) try { conn.close(); } catch (SQLException e) { }
+      if (rs != null)
+        try {
+          rs.close();
+        } catch (SQLException e) {
+        }
+      if (ps != null)
+        try {
+          ps.close();
+        } catch (SQLException e) {
+        }
+      if (conn != null)
+        try {
+          conn.close();
+        } catch (SQLException e) {
+        }
     }
   }
 
