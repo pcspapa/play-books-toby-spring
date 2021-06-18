@@ -11,7 +11,7 @@ public class DaoFactory {
   @Bean
   UserDao userDao() {
     UserDao dao = new UserDao();
-    dao.setDataSource(dataSource());
+    dao.setJdbcContext(jdbcContext());
 
     return dao;
   }
@@ -25,5 +25,13 @@ public class DaoFactory {
     dataSource.setPassword("");
 
     return dataSource;
+  }
+
+  @Bean
+  JdbcContext jdbcContext() {
+    JdbcContext jdbcContext = new JdbcContext();
+    jdbcContext.setDataSource(dataSource());
+
+    return jdbcContext;
   }
 }

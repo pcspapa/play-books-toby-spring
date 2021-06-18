@@ -10,14 +10,14 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 public class UserDao {
 
-  private DataSource dataSource;
+  private JdbcContext jdbcContext;
 
-  public void setDataSource(DataSource dataSource) {
-    this.dataSource = dataSource;
+  public void setJdbcContext(JdbcContext jdbcContext) {
+    this.jdbcContext = jdbcContext;
   }
 
   public void add(User user) throws SQLException {
-    jdbcContextWithStatementStrategy(new StatementStrategy() {
+    jdbcContext.jdbcContextWithStatementStrategy(new StatementStrategy() {
       @Override
       public PreparedStatement makePrepareStatement(Connection conn) throws SQLException {
         PreparedStatement ps = conn.prepareStatement("insert into users(id, name, password) values(?, ?, ?)");
@@ -37,7 +37,7 @@ public class UserDao {
 
     User findUser = null;
     try {
-      conn = dataSource.getConnection();
+      conn = jdbcContext.dataSource.getConnection();
 
       ps = conn.prepareStatement("select * from users where id = ?");
       ps.setString(1, id);
@@ -66,25 +66,7 @@ public class UserDao {
 
   public void deleteAll() throws SQLException {
     StatementStrategy stmt = new DeleteAllStatement();
-    jdbcContextWithStatementStrategy(stmt);
-  }
-
-  private void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException {
-    Connection conn = null;
-    PreparedStatement ps = null;
-
-    try {
-      conn = dataSource.getConnection();
-
-      ps = stmt.makePrepareStatement(conn);
-
-      ps.executeUpdate();
-    } catch (SQLException e) {
-      throw e;
-    } finally {
-      if (ps != null) try { ps.close(); } catch (SQLException e) { }
-      if (conn != null) try { conn.close(); } catch (SQLException e) { }
-    }
+    jdbcContext.jdbcContextWithStatementStrategy(stmt);
   }
 
   public int getCount() throws SQLException {
@@ -93,7 +75,7 @@ public class UserDao {
     ResultSet rs = null;
 
     try {
-      conn = dataSource.getConnection();
+      conn = jdbcContext.dataSource.getConnection();
 
       ps = conn.prepareStatement("select count(*) from users");
 
