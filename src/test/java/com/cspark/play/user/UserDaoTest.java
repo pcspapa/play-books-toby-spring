@@ -3,11 +3,16 @@ package com.cspark.play.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.sql.SQLException;
 import java.util.List;
+import javax.sql.DataSource;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 
 @SpringBootTest
 class UserDaoTest {
@@ -15,19 +20,33 @@ class UserDaoTest {
   @Autowired
   private UserDao dao;
 
+  @Autowired
+  private DataSource datasource;
+
+  private User user1;
+  private User user2;
+  private User user3;
+  private User mjUser;
+
+  @BeforeEach
+  void setUp() {
+    user1 = new User("id1", "name1", "pw1");
+    user2 = new User("id2", "name2", "pw2");
+    user3 = new User("id3", "name3", "pw3");
+    mjUser = new User("mj", "Mary Jane Watson", "pw");
+  }
+
   @Test
   void addAndGetUser() {
-    User user = new User("mj", "Mary Jane Watson", "pw");
-
     dao.deleteAll();
     assertThat(dao.getCount()).isZero();
 
-    dao.add(user);
+    dao.add(mjUser);
 
-    User mjUser = dao.get(user.getId());
-    assertThat(mjUser.getId()).isEqualTo(user.getId());
-    assertThat(mjUser.getName()).isEqualTo(user.getName());
-    assertThat(mjUser.getPassword()).isEqualTo(user.getPassword());
+    User getMJUser = dao.get(mjUser.getId());
+    assertThat(getMJUser.getId()).isEqualTo(mjUser.getId());
+    assertThat(getMJUser.getName()).isEqualTo(mjUser.getName());
+    assertThat(getMJUser.getPassword()).isEqualTo(mjUser.getPassword());
   }
 
   @Test
@@ -37,11 +56,27 @@ class UserDaoTest {
   }
 
   @Test
-  void count() {
-    User user1 = new User("id1", "name1", "pw1");
-    User user2 = new User("id2", "name2", "pw2");
-    User user3 = new User("id3", "name3", "pw3");
+  void duplicateKey() {
+    dao.deleteAll();
 
+    dao.add(user1);
+    assertThatThrownBy(() -> dao.add(user1))
+        .isInstanceOf(DuplicateKeyException.class);
+
+    try {
+      dao.add(user1);
+    } catch (DuplicateKeyException ex) {
+      SQLException sqlEx = (SQLException) ex.getRootCause();
+      SQLErrorCodeSQLExceptionTranslator set = new SQLErrorCodeSQLExceptionTranslator(datasource);
+
+      assertThat(set.translate(null, null, sqlEx))
+          .isInstanceOf(DuplicateKeyException.class);
+    }
+
+  }
+
+  @Test
+  void count() {
     dao.deleteAll();
     assertThat(dao.getCount()).isZero();
 
@@ -61,10 +96,6 @@ class UserDaoTest {
 
     List<User> users = dao.getAll();
     assertThat(users.size()).isZero();
-
-    User user1 = new User("id1", "name1", "pw1");
-    User user2 = new User("id2", "name2", "pw2");
-    User user3 = new User("id3", "name3", "pw3");
 
     dao.add(user1);
     List<User> users1 = dao.getAll();
