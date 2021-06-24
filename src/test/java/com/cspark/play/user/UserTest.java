@@ -8,7 +8,7 @@ class UserTest {
 
   @Test
   void createUser() {
-    User user = new User("id", "name", "password");
+    User user = new User("id", "name", "password", Level.BASIC, 1, 0);
 
     assertThat(user).isNotNull();
     assertThat(user.getId()).isEqualTo("id");
@@ -18,8 +18,8 @@ class UserTest {
 
   @Test
   void equalAndHash() {
-    User user = new User("id", "name", "password");
-    User renameUser = new User("id", "rename", "password");
+    User user = new User("id", "name", "password", Level.BASIC, 1, 0);
+    User renameUser = new User("id", "rename", "password", Level.BASIC, 1, 0);
 
     assertThat(user).isEqualTo(renameUser);
   }

@@ -7,7 +7,7 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-public class JdbcUserDao implements UserDao {
+public class UserDaoJdbc implements UserDao {
 
   private final RowMapper<User> rowMapper = new RowMapper<User>() {
     @Override
@@ -15,7 +15,10 @@ public class JdbcUserDao implements UserDao {
       return new User(
           rs.getString("id"),
           rs.getString("name"),
-          rs.getString("password")
+          rs.getString("password"),
+          Level.valueOf(rs.getInt("level")),
+          rs.getInt("login"),
+          rs.getInt("recommend")
       );
     }
   };
@@ -28,10 +31,13 @@ public class JdbcUserDao implements UserDao {
 
   @Override
   public void add(User user) {
-    jdbcTemplate.update("insert into users(id, name, password) values(?, ?, ?)",
+    jdbcTemplate.update("insert into users(id, name, password, level, login, recommend) values(?, ?, ?, ?, ?, ?)",
         user.getId(),
         user.getName(),
-        user.getPassword());
+        user.getPassword(),
+        user.getLevel().intValue(),
+        user.getLogin(),
+        user.getRecommend());
   }
 
   @Override
@@ -53,4 +59,16 @@ public class JdbcUserDao implements UserDao {
   public List<User> getAll() {
     return jdbcTemplate.query("select * from users", rowMapper);
   }
+
+  @Override
+  public void update(User user) {
+    jdbcTemplate.update("update users set name = ?, password = ?, level = ?, login = ?, recommend = ? where id = ?",
+        user.getName(),
+        user.getPassword(),
+        user.getLevel().intValue(),
+        user.getLogin(),
+        user.getRecommend(),
+        user.getId());
+  }
+
 }

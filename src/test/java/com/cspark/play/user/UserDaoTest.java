@@ -30,10 +30,10 @@ class UserDaoTest {
 
   @BeforeEach
   void setUp() {
-    user1 = new User("id1", "name1", "pw1");
-    user2 = new User("id2", "name2", "pw2");
-    user3 = new User("id3", "name3", "pw3");
-    mjUser = new User("mj", "Mary Jane Watson", "pw");
+    user1 = new User("id1", "name1", "pw1", Level.BASIC, 1, 0);
+    user2 = new User("id2", "name2", "pw2", Level.SILVER, 55, 10);
+    user3 = new User("id3", "name3", "pw3", Level.GOLD, 100, 40);
+    mjUser = new User("mj", "Mary Jane Watson", "pw", Level.BASIC, 1, 0);
   }
 
   @Test
@@ -44,9 +44,7 @@ class UserDaoTest {
     dao.add(mjUser);
 
     User getMJUser = dao.get(mjUser.getId());
-    assertThat(getMJUser.getId()).isEqualTo(mjUser.getId());
-    assertThat(getMJUser.getName()).isEqualTo(mjUser.getName());
-    assertThat(getMJUser.getPassword()).isEqualTo(mjUser.getPassword());
+    checkSameUser(getMJUser, mjUser);
   }
 
   @Test
@@ -116,9 +114,33 @@ class UserDaoTest {
     checkSameUser(users3.get(2), user3);
   }
 
+  @Test
+  void update() {
+    dao.deleteAll();
+
+    dao.add(user1);
+    dao.add(user2);
+
+    user1.setName("rename");
+    user1.setPassword("change_pw");
+    user1.setLevel(Level.GOLD);
+    user1.setLogin(1000);
+    user1.setRecommend(999);
+    dao.update(user1);
+
+    User getUser1 = dao.get(user1.getId());
+    checkSameUser(getUser1, user1);
+
+    User getUser2 = dao.get(user2.getId());
+    checkSameUser(getUser2, user2);
+  }
+
   private void checkSameUser(User actual, User expected) {
     assertThat(actual.getId()).isEqualTo(expected.getId());
     assertThat(actual.getName()).isEqualTo(expected.getName());
     assertThat(actual.getPassword()).isEqualTo(expected.getPassword());
+    assertThat(actual.getLevel()).isEqualTo(expected.getLevel());
+    assertThat(actual.getLogin()).isEqualTo(expected.getLogin());
+    assertThat(actual.getRecommend()).isEqualTo(expected.getRecommend());
   }
 }
