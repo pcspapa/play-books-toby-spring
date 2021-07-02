@@ -6,7 +6,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 @Configuration
-public class DaoFactory {
+public class UserConfiguration {
+
+  @Bean
+  UserService userService() {
+    UserService userService = new UserService();
+    userService.setUserDao(userDao());
+    return userService;
+  }
 
   @Bean
   UserDao userDao() {
